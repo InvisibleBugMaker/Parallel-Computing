@@ -1,0 +1,138 @@
+Q1：
+r = [2.995, 3.4495, 3.564, 3.5685, 3.56965]
+k= 4
+
+bif_rat = (r[k-1]-r[k-2])/(r[k]-r[k-1])
+print("The Bifurcation Ratio is", bif_rat)
+
+********************************************************************************************************
+
+Q2:
+2A:
+def squared(x, r):
+    return x*x+r
+
+def steadyArray(f, x0, r, n_transient, n_ss):
+    '''
+    Conpute an array of iterates of the map f(x,r)
+    
+    Inputs:
+        f: name of mapping function that has 2 float arguments
+        x0: float initial value
+        r: float parameter value
+        n_transient: int number of initial iterates to NOT store
+        n_ss: int number of iterates to store
+        
+    Returns:
+        x: numpy array of n float64 values
+    '''
+    #create an array to hold n elements (each a 64 bit float)
+    x = np.zeros(n_ss, dtype=np.float64) 
+    x_old = x0 #assign the initial value
+    for i in range(n_transient):
+        x_new = f(x_old, r)
+        x_old = x_new
+    for i in range(n_ss): #iterate over the desired sequence
+        x[i] = x_old
+        x_new = f(x_old, r) #compute the output value and assign to variable x_new
+        x_old = x_new #assign the new (output) value top be the old (input) value for the next iterate
+    return x
+m = 1024
+n_ss = 128
+n_transient = 200
+x0 = 0.5
+
+xmin = -2
+xmax = 2
+rmin = -2
+rmax = 0
+# Create the m equally spaced values of beta using linspace
+r = np.linspace(rmin,rmax,m)
+
+#create a 2D numpy array (init to zero) to store n_ss values at each of the m r values.
+x = np.zeros([m,n_ss])
+
+for j in range(r.shape[0]):
+    tmp = steadyArray(logistic, x0, r[j], n_transient, n_ss)
+    for i in range(n_ss):
+        x[j,i] = tmp[i]
+
+# This line sets the size of your plot (width, height in inches)
+plt.figure(figsize=(12,8))
+"""
+Modify the size of the plot and the range of x and r 
+to make it easier to read off bifurcation values.
+"""
+
+for j in range(n_ss):
+    plt.plot(r,x.transpose()[j], 'b.')
+plt.axis([rmin,rmax, xmin, xmax])
+plt.xlabel('Iteration number')
+plt.ylabel('x value')
+plt.title('Iterations of the quadratic map')
+# plt.xscale("log")
+#plt.text(.1, .5, r'$x_0=0.5, r=0.1$')
+plt.grid()
+
+plt.show()
+---------------------------------------------------------------
+2B:
+r = [-0.739, -1.241, -1.3675, -1.3932, -1.399]
+k= 4
+
+bif_rat = (r[k-1]-r[k-2])/(r[k]-r[k-1])
+print("The Bifurcation Ratio is", bif_rat)
+*********************************************************************
+
+Q3:
+3A:
+def f(z, c):
+    return z*z+c
+
+z0 = 0
+n = 10
+c = -.25+.25j
+vals = np.zeros(n,dtype=np.complex)
+z_old = z0
+for i in range(n):
+    vals[i] = z_old
+    z_new=f(z_old, c)
+    z_old = z_new
+print(vals)
+
+
+------------------------------------------------------------------
+3B:
+z0 = 0
+n = 10
+c = -1.+1.j
+vals = np.zeros(n,dtype=np.complex)
+z_old = z0
+for i in range(n):
+    vals[i] = z_old
+    z_new=f(z_old, c)
+    z_old = z_new
+print(vals)
+
+----------------------------------------------------------------------
+3C:
+def f(z, c):
+    return z*z+c
+
+
+def escape_iters(f, c, rad, max_iters):
+
+    # YOUR CODE HERE
+    z0 = 0
+    z_old = z0
+    for i in range(max_iters):
+        z_new=f(z_old, c)
+        z_old = z_new
+        i = i+1
+        if (z_old.real ** 2 + z_old.imag ** 2) ** 0.5 > rad:
+            break
+    return i
+
+------------------------------------------------------------------
+
+def mandy(f, r_spec, s_spec, rad, max_iters):
